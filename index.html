@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Number Tool</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-light: #4895ef;
+            --secondary: #3f37c9;
+            --bg: #f8f9fa;
+            --card: #ffffff;
+            --text: #2b2d42;
+            --highlight: #4cc9f0;
+            --copied-bg: #b8d8ff;
+            --stats-bg: #e2f3ff;
+            --range-row-bg: #f5f7ff;
+            --range-active-bg: #e0e7ff;
+            --danger: #f72585;
+            --current-range-bg: #f0f7ff;
+        }
+        
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: var(--bg);
+            color: var(--text);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        h1 {
+            color: var(--primary);
+            margin-bottom: 5px;
+        }
+        
+        .developer {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .card {
+            flex: 1;
+            min-width: 300px;
+            background: var(--card);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+        }
+        
+        .scrollable-ranges {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            padding-right: 5px;
+        }
+        
+        .range-container {
+            background: var(--range-row-bg);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary-light);
+        }
+        
+        .current-range {
+            background: var(--current-range-bg) !important;
+            border: 2px solid var(--primary) !important;
+        }
+        
+        .range-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .range-name {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 16px;
+        }
+        
+        .range-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        button {
+            padding: 10px 15px;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: var(--secondary);
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+        
+        .btn-danger {
+            background: var(--danger);
+        }
+        
+        .btn-danger:hover {
+            background: #d1144a;
+        }
+        
+        .btn-success {
+            background: #28a745;
+        }
+        
+        .btn-success:hover {
+            background: #218838;
+        }
+        
+        .range-stats {
+            background: var(--stats-bg);
+            padding: 10px 15px;
+            border-radius: 8px;
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: var(--primary);
+            font-size: 18px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        textarea {
+            width: 100%;
+            height: 150px;
+            margin-bottom: 15px;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            font-family: monospace;
+        }
+        
+        .numbers-header {
+            font-weight: bold;
+            margin: 15px 0 10px 0;
+            color: var(--primary);
+            font-size: 16px;
+        }
+        
+        .scrollable-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            padding: 10px;
+            background: white;
+            margin-bottom: 15px;
+        }
+        
+        .number {
+            padding: 10px;
+            margin: 8px 0;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.2s;
+            background: #f9f9f9;
+        }
+        
+        .number:hover {
+            background: #f0f0f0;
+        }
+        
+        .number.copied {
+            background: var(--copied-bg);
+            border-left: 4px solid var(--primary);
+            font-weight: bold;
+        }
+        
+        .button-group {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .animation-copy {
+            animation: pulse 0.5s;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .work-area-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        
+        .current-range-label {
+            font-size: 16px;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: var(--stats-bg);
+            border-radius: 6px;
+            text-align: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Advanced Number Tool</h1>
+        <div class="developer">ডেভেলপার: <strong>Md. Emon Faruk</strong></div>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h3>রেঞ্জ ম্যানেজমেন্ট</h3>
+            <div class="scrollable-ranges" id="rangesContainer">
+                <!-- রেঞ্জগুলি এখানে যোগ হবে -->
+            </div>
+            <button class="btn-primary" onclick="addNewRange()">+ নতুন রেঞ্জ যোগ করুন</button>
+        </div>
+
+        <div class="card">
+            <div class="work-area-title">Working Range</div>
+            <div id="workArea">
+                <p>প্রথমে একটি রেঞ্জ সিলেক্ট করুন</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // গ্লোবাল ভেরিয়েবল
+        let ranges = {};
+        let currentRangeId = null;
+        
+        // পেইজ লোড হলে ডেটা রিকভার করুন
+        window.onload = function() {
+            const savedData = localStorage.getItem('advNumberTool');
+            if (savedData) {
+                ranges = JSON.parse(savedData);
+                renderRanges();
+                
+                if (Object.keys(ranges).length > 0) {
+                    selectRange(Object.keys(ranges)[0]);
+                }
+            }
+        };
+
+        // নতুন রেঞ্জ যোগ করুন
+        function addNewRange() {
+            const rangeId = Date.now().toString();
+            const rangeName = prompt("রেঞ্জের নাম দিন (যেমন: সিলেট রেঞ্জ, ক্লায়েন্ট-A):", `রেঞ্জ-${Object.keys(ranges).length + 1}`);
+            
+            if (rangeName) {
+                ranges[rangeId] = {
+                    name: rangeName,
+                    numbers: [],
+                    copiedIndices: [],
+                    inputNumbers: ""
+                };
+                
+                saveData();
+                renderRanges();
+                selectRange(rangeId);
+            }
+        }
+
+        // রেঞ্জের নাম পরিবর্তন করুন
+        function renameRange(rangeId) {
+            const newName = prompt("রেঞ্জের নতুন নাম দিন:", ranges[rangeId].name);
+            if (newName && newName.trim() !== "") {
+                ranges[rangeId].name = newName.trim();
+                saveData();
+                renderRanges();
+            }
+        }
+
+        // রেঞ্জ ডিলিট করুন
+        function deleteRange(rangeId) {
+            if (confirm(`আপনি কি "${ranges[rangeId].name}" রেঞ্জটি ডিলিট করতে চান?`)) {
+                delete ranges[rangeId];
+                saveData();
+                renderRanges();
+                
+                if (currentRangeId === rangeId) {
+                    document.getElementById('workArea').innerHTML = '<p>প্রথমে একটি রেঞ্জ সিলেক্ট করুন</p>';
+                    currentRangeId = null;
+                }
+            }
+        }
+
+        // সব রেঞ্জ রেন্ডার করুন
+        function renderRanges() {
+            const container = document.getElementById('rangesContainer');
+            container.innerHTML = '';
+            
+            Object.keys(ranges).forEach(rangeId => {
+                const range = ranges[rangeId];
+                const copiedCount = range.copiedIndices.length;
+                const totalCount = range.numbers.length;
+                const remainingCount = totalCount - copiedCount;
+                
+                const rangeDiv = document.createElement('div');
+                rangeDiv.className = `range-container ${currentRangeId === rangeId ? 'current-range' : ''}`;
+                rangeDiv.innerHTML = `
+                    <div class="range-header">
+                        <div class="range-name">${range.name}</div>
+                        <div class="range-actions">
+                            <button class="btn-success" onclick="renameRange('${rangeId}')">নাম পরিবর্তন</button>
+                            <button class="btn-danger" onclick="deleteRange('${rangeId}')">ডিলিট</button>
+                        </div>
+                    </div>
+                    <div class="range-stats">
+                        <div class="stat-item">
+                            <div class="stat-value">${totalCount}</div>
+                            <div class="stat-label">মোট</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${copiedCount}</div>
+                            <div class="stat-label">Copied</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-value">${remainingCount}</div>
+                            <div class="stat-label">বাকি</div>
+                        </div>
+                    </div>
+                    <button class="btn-primary" onclick="selectRange('${rangeId}')">সিলেক্ট করুন</button>
+                `;
+                
+                container.appendChild(rangeDiv);
+            });
+        }
+
+        // রেঞ্জ সিলেক্ট করুন
+        function selectRange(rangeId) {
+            currentRangeId = rangeId;
+            const range = ranges[rangeId];
+            
+            const workArea = document.getElementById('workArea');
+            workArea.innerHTML = `
+                <div class="current-range-label">বর্তমান রেঞ্জ: ${range.name}</div>
+                <textarea id="inputNumbers" placeholder="এখানে নাম্বার পেস্ট করুন (প্রতি লাইনে একটি নাম্বার)...">${range.inputNumbers}</textarea>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="loadNumbers()">নাম্বার লোড করুন</button>
+                    <button class="btn-secondary" onclick="clearInput()">ইনপুট ক্লিয়ার করুন</button>
+                </div>
+                <div class="range-stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="total">${range.numbers.length}</div>
+                        <div class="stat-label">মোট</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="copied">${range.copiedIndices.length}</div>
+                        <div class="stat-label">Copied</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="remaining">${range.numbers.length - range.copiedIndices.length}</div>
+                        <div class="stat-label">বাকি</div>
+                    </div>
+                </div>
+                <div class="numbers-header">Click to Copy:</div>
+                <div class="scrollable-list" id="numberList"></div>
+                <div class="button-group">
+                    <button class="btn-primary" onclick="exportCopied()">Copied নাম্বার এক্সপোর্ট করুন</button>
+                    <button class="btn-danger" onclick="resetCurrentRange()">বর্তমান রেঞ্জ রিসেট করুন</button>
+                </div>
+            `;
+            
+            renderNumbers();
+            renderRanges();
+        }
+
+        // নাম্বার লোড করুন
+        function loadNumbers() {
+            if (!currentRangeId) return;
+            
+            const input = document.getElementById('inputNumbers').value.trim();
+            ranges[currentRangeId].numbers = input.split('\n').filter(num => num.trim() !== '');
+            ranges[currentRangeId].copiedIndices = [];
+            ranges[currentRangeId].inputNumbers = input;
+            
+            saveData();
+            renderNumbers();
+            updateStats();
+            renderRanges();
+        }
+
+        // নাম্বার রেন্ডার করুন
+        function renderNumbers() {
+            if (!currentRangeId) return;
+            
+            const numberList = document.getElementById('numberList');
+            numberList.innerHTML = '';
+            const range = ranges[currentRangeId];
+            
+            range.numbers.forEach((num, index) => {
+                const numberDiv = document.createElement('div');
+                numberDiv.className = range.copiedIndices.includes(index) ? 'number copied' : 'number';
+                numberDiv.textContent = num;
+                numberDiv.onclick = () => copyNumber(num, index);
+                numberList.appendChild(numberDiv);
+            });
+        }
+
+        // নাম্বার কপি করুন
+        function copyNumber(num, index) {
+            if (!currentRangeId) return;
+            
+            navigator.clipboard.writeText(num).then(() => {
+                if (!ranges[currentRangeId].copiedIndices.includes(index)) {
+                    ranges[currentRangeId].copiedIndices.push(index);
+                    saveData();
+                    renderNumbers();
+                    updateStats();
+                    renderRanges();
+                    
+                    const numberElements = document.querySelectorAll('.number');
+                    numberElements[index].classList.add('animation-copy');
+                    setTimeout(() => {
+                        numberElements[index].classList.remove('animation-copy');
+                    }, 500);
+                }
+            });
+        }
+
+        // স্ট্যাটস আপডেট করুন
+        function updateStats() {
+            if (!currentRangeId) return;
+            
+            const range = ranges[currentRangeId];
+            const total = range.numbers.length;
+            const copied = range.copiedIndices.length;
+            
+            document.getElementById('total').textContent = total;
+            document.getElementById('copied').textContent = copied;
+            document.getElementById('remaining').textContent = total - copied;
+        }
+
+        // ইনপুট ক্লিয়ার করুন
+        function clearInput() {
+            document.getElementById('inputNumbers').value = '';
+        }
+
+        // কপি করা নাম্বার এক্সপোর্ট করুন
+        function exportCopied() {
+            if (!currentRangeId) return;
+            
+            const range = ranges[currentRangeId];
+            const copiedNumbers = range.copiedIndices.map(index => range.numbers[index]);
+            const text = copiedNumbers.join('\n');
+            
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied নাম্বারগুলি ক্লিপবোর্ডে সংরক্ষিত হয়েছে!');
+            });
+        }
+
+        // বর্তমান রেঞ্জ রিসেট করুন
+        function resetCurrentRange() {
+            if (!currentRangeId) return;
+            
+            if (confirm(`আপনি কি "${ranges[currentRangeId].name}" রেঞ্জটি সম্পূর্ণ রিসেট করতে চান?\n\nসমস্ত ডেটা মুছে যাবে!`)) {
+                ranges[currentRangeId].numbers = [];
+                ranges[currentRangeId].copiedIndices = [];
+                ranges[currentRangeId].inputNumbers = "";
+                
+                saveData();
+                selectRange(currentRangeId);
+            }
+        }
+
+        // ডেটা সেভ করুন
+        function saveData() {
+            localStorage.setItem('advNumberTool', JSON.stringify(ranges));
+        }
+    </script>
+</body>
+</html>
